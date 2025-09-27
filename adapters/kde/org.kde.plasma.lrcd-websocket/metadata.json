@@ -1,0 +1,19 @@
+{
+    "KPlugin": {
+        "Authors": [],
+        "Category": "Utilities",
+        "Description": "lrcd WebSocket adapter for KDE Plasma",
+        "EnabledByDefault": true,
+        "Icon": "applications-system",
+        "Id": "org.kde.plasma.lrcd-websocket",
+        "License": "GPL-3.0",
+        "Name": "lrcd-websocket",
+        "ServiceTypes": [
+            "Plasma/Applet"
+        ],
+        "Version": "1.0",
+        "Website": ""
+    },
+    "X-Plasma-API-Minimum-Version": "6.0",
+    "X-Plasma-MainScript": "ui/main.qml"
+}

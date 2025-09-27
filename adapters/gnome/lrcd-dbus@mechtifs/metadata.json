@@ -1,0 +1,10 @@
+{
+  "description": "lrcd D-Bus adapter for GNOME Shell",
+  "name": "lrcd-dbus",
+  "shell-version": [
+    "49"
+  ],
+  "url": "https://github.com/mechtifs/lrcd",
+  "uuid": "lrcd-dbus@mechtifs",
+  "version": 1
+}
