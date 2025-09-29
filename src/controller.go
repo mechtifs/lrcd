@@ -163,13 +163,19 @@ func (c *Controller) fetchFastest(ctx context.Context, meta *models.MPRISMetadat
 	for _, a := range meta.Artists {
 		artistSet[a] = struct{}{}
 	}
+	trackname := utils.FormatTrack(meta)
 	wg := sync.WaitGroup{}
 	lyricsCh := make(chan *models.Lyrics, len(c.providers))
 	for _, prov := range c.providers {
+		slog.Info("fetching lyrics", "track", trackname, "source", prov.ID())
 		wg.Go(func() {
 			iter, err := prov.IterAll(ctx, meta)
 			if err != nil {
-				slog.Warn(err.Error(), "provider", prov.ID())
+				if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+					slog.Warn("fetch canceled", "track", trackname)
+				} else {
+					slog.Warn(err.Error(), "track", trackname, "source", prov.ID())
+				}
 				return
 			}
 			for candidate := range iter {
@@ -179,6 +185,7 @@ func (c *Controller) fetchFastest(ctx context.Context, meta *models.MPRISMetadat
 				lyrics, err := candidate.Lyrics(ctx)
 				if err != nil {
 					if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+						slog.Warn("fetch canceled", "track", trackname)
 						return
 					}
 					continue
@@ -200,10 +207,16 @@ func (c *Controller) fetchFallback(ctx context.Context, meta *models.MPRISMetada
 	for _, a := range meta.Artists {
 		artistSet[a] = struct{}{}
 	}
+	trackname := utils.FormatTrack(meta)
 	for _, prov := range c.providers {
+		slog.Info("fetching lyrics", "track", trackname, "source", prov.ID())
 		iter, err := prov.IterAll(ctx, meta)
 		if err != nil {
-			slog.Warn(err.Error(), "provider", prov.ID())
+			if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+				slog.Warn("fetch canceled", "track", trackname)
+				return nil
+			}
+			slog.Warn(err.Error(), "track", trackname, "source", prov.ID())
 			continue
 		}
 		for candidate := range iter {
@@ -213,6 +226,7 @@ func (c *Controller) fetchFallback(ctx context.Context, meta *models.MPRISMetada
 			lyrics, err := candidate.Lyrics(ctx)
 			if err != nil {
 				if errors.Is(err, context.Canceled) || errors.Is(err, context.DeadlineExceeded) {
+					slog.Warn("fetch canceled", "track", trackname)
 					return nil
 				}
 				continue
