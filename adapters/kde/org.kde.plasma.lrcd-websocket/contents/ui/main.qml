@@ -35,7 +35,7 @@ PlasmoidItem {
                 url: "ws://127.0.0.1:5723"
                 active: true
 
-                onTextMessageReceived: (msg) => label.text = msg == "\x7f" ? "" : msg
+                onTextMessageReceived: (msg) => label.text = msg < " " ? "" : msg
 
                 onStatusChanged: (st) => {
                     switch (st) {
